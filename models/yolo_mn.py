@@ -1,5 +1,10 @@
+import numpy as np
+import torch
 from torch import nn
+from torch.nn import functional
+from PIL import Image
 from torchvision.models import mobilenet_v3_large, MobileNet_V3_Large_Weights
+from torchvision import transforms
 
 class Backbone(nn.Module):
     def __init__(self):
@@ -53,11 +58,7 @@ class YoloLP(nn.Module):
         return out
     
 
-# trans = transforms.Compose([
-#     transforms.ToTensor()
-# ])
-# img = Image.open("IMAGE.jpg", mode='r')
-# mod = YoloLP()
-# data = trans(img)
-# pred = mod(data.unsqueeze(dim=0))
-# print(pred.shape)
+trans = transforms.Compose([
+    transforms.ToTensor()
+])
+

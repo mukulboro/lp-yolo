@@ -2,64 +2,61 @@ import os
 import torch
 from PIL import Image
 from torch.utils.data import Dataset
+from torchvision.ops import box_convert
+from torchvision import transforms
 from utils import encode
+import json
+
 
 class YoloDataset(Dataset):
-    def __init__(self, img_list_path, S, B, num_classes, transforms=None, img_box_transforms=None, eval_mode=False):
-        with open(img_list_path, "r") as img_list_file:
-            self.img_filenames = img_list_file.readlines()
-            
-        self.img_filenames = list(map(lambda x:x.strip(), self.img_filenames))
-        self.label_files = []
-        for path in self.img_filenames:
-            image_dir = os.path.dirname(path)
-            label_dir = "labels".join(image_dir.rsplit("images", 1))
-            assert label_dir != image_dir, \
-                f"Image path must contain a folder named 'images'! \n'{image_dir}'"
-            label_file = os.path.join(label_dir, os.path.basename(path))
-            label_file = os.path.splitext(label_file)[0] + '.txt'
-            self.label_files.append(label_file)
-
-        self.transforms = transforms
-        self.img_box_transforms = img_box_transforms
-        
+    def __init__(self, img_path, S=7, B=2, num_classes=3, eval_mode=False, class_names = ["emb", "pro", "reg"]):
+        self.image_path = img_path
         self.S = S
         self.B = B
         self.num_classes = num_classes
         self.eval_mode = eval_mode
+        all_files = os.listdir(img_path)
+        self.annotation_files = [x for x in all_files if x.endswith(".json")]
+        self.image_files = [x for x in all_files if x not in self.annotation_files]
+        self.class_names = class_names
+        self.transforms = transforms.Compose([
+            transforms.ToTensor()
+        ])
 
     def eval(self, eval_mode=True):
         self.eval_mode = eval_mode
         return
 
     def __len__(self):
-        return len(self.img_filenames)
+        return len(self.image_files)
 
     def __getitem__(self, idx):
         # read image
-        img_filename = self.img_filenames[idx]
-        img = Image.open(img_filename, mode='r')
-        if self.transforms is not None:
-            img = self.transforms(img)
+        img_filename = self.image_files[idx]
+        img = Image.open(f"{self.image_path}/{img_filename}", mode='r')
+        img = self.transforms(img)
 
-        # read each image's corresponding label (.txt)
+        # read each image's corresponding label (.json)
         labels = []
-        with open(self.label_files[idx], 'r') as f:
-            lines = f.readlines()
-            for line in lines:
-                if line == '\n':
-                    continue
-                line = line.strip().split(' ')
-                # convert xywh str to float, class str to int
-                c, x, y, w, h = int(line[0]), float(line[1]), float(line[2]), float(line[3]), float(line[4])
+        annotation_file_name = (img_filename.split("."))[0]+".json"
+        with open(f"{self.image_path}/{annotation_file_name}", 'r') as f:
+            data = json.loads(f.read())
+            for annot in data["annotations"]:
+                c = self.class_names.index(annot["label"])
+                w, h = annot["n_bb_w"], annot["n_bb_h"]
+                x1, y1 = annot["n_x_min"], annot["n_y_min"]
+                x2,y2 = annot["n_x_max"], annot["n_y_max"]
+                converted_boxes = box_convert(
+                    boxes= torch.Tensor([x2,y2,x1,y1]),
+                    in_fmt="xyxy",
+                    out_fmt="cxcywh"
+                    )
+                x, y = converted_boxes[0], converted_boxes[1]
+        
                 if self.eval_mode: 
                     labels.append((x, y, w, h, 1.0, c))
                 else:
                     labels.append((x, y, w, h, c))
-                
-        if self.img_box_transforms is not None:
-            for t in self.img_box_transforms:
-                img, labels = t(img, labels)
         
         if self.eval_mode: 
             return img, torch.Tensor(labels)
