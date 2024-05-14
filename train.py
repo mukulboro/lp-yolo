@@ -39,13 +39,13 @@ def train(model, train_loader, optimizer, epoch, scheduler, device, S, B, train_
             writer.add_image('image batch0', img_grid, 0)
 
         # print loss and accuracy
-        pbar.set_description(f"[Epoch {epoch+1}] loss = {train_loss/(batch_idx+1):.03f}")
+        pbar.set_description(f"[Epoch {epoch}] Loss = {train_loss/(batch_idx+1):.03f}")
 
     # record training loss
     train_loss /= len(pbar)
     train_loss_lst.append(train_loss)
 
-    tqdm.write(f"Epoch {epoch} training summary -- loss = {train_loss:.03f}")
+    tqdm.write(f"[Epoch {epoch}] TRAIN LOSS = {train_loss:.03f}")
     return train_loss_lst
 
 
@@ -62,7 +62,7 @@ def validate(model, val_loader, device, S, B, valid_loss_list):
 
     val_loss /= len(val_loader)
 
-    tqdm.write(f"Epoch {epoch} validation summary -- loss = {val_loss:.03f}")
+    tqdm.write(f"[Epoch {epoch}] VALID LOSS = {val_loss:.03f}")
    
     valid_loss_list.append(val_loss)
     return valid_loss_list
