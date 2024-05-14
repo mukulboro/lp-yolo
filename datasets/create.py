@@ -3,13 +3,6 @@ from torchvision import transforms
 from datasets import YoloDataset
 
 def create_dataloaders(img_list_path, train_ratio, valid_ratio, batch_size, input_size, S, B, num_classes):
-    transform = transforms.Compose([
-        transforms.ColorJitter(0.2, 0.5, 0.7, 0.07),
-        transforms.RandomAdjustSharpness(3, p=0.2),
-        transforms.RandomGrayscale(p=0.1),
-        transforms.ToTensor()
-    ])
-
     # create yolo dataset
     dataset = YoloDataset(img_list_path, S, B, num_classes)
 

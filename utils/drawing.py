@@ -3,9 +3,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
-def draw_detection(img, bboxes, class_names, colors=None):
-    if colors is None:
-        colors = [(255,0,0), (0,255,0), (0,0,255)]
+def draw_detection(img, bboxes, class_names):
+    colors = [(255,0,0), (0,255,0), (0,0,255)]
     if img is Image:
         img = np.array(img)
     h, w = img.shape[0:2]

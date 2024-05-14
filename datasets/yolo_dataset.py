@@ -19,9 +19,12 @@ class YoloDataset(Dataset):
         self.annotation_files = [x for x in all_files if x.endswith(".json")]
         self.image_files = [x for x in all_files if x not in self.annotation_files]
         self.class_names = class_names
-        self.transforms = transforms.Compose([
+        self.transform = transforms.Compose([
+            transforms.ColorJitter(0.2, 0.5, 0.7, 0.07),
+            transforms.RandomAdjustSharpness(3, p=0.2),
+            transforms.RandomGrayscale(p=0.1),
             transforms.ToTensor()
-        ])
+    ])
 
     def eval(self, eval_mode=True):
         self.eval_mode = eval_mode

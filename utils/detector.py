@@ -7,9 +7,9 @@ from utils import decode
 from models import create_model
 
 class Detector(object):
-    def __init__(self, model_path, input_size, S, B, num_classes, type, device):
+    def __init__(self, input_size, S, B, num_classes):
         super().__init__()
-        self.model = create_model(model_path, S, B, num_classes, type, device)
+        self.model = create_model(S, B, num_classes)
         self.transforms = transforms.Compose([
             transforms.Resize((input_size, input_size)),
             transforms.ToTensor()
@@ -22,8 +22,7 @@ class Detector(object):
         image = Image.fromarray(img).convert('RGB')
         image = self.transforms(image)
         image.unsqueeze_(0)
-
         pred = self.model(image)
         pred = pred[0].detach().cpu()
-        
-        return decode(pred, self.S, self.B, self.num_classes, conf, iou)
+        decoded_pred = decode(pred, self.S, self.B, self.num_classes, conf, iou)
+        return decoded_pred

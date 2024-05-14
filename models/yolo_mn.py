@@ -11,6 +11,9 @@ class Backbone(nn.Module):
         super().__init__()
         self.mobile_net = mobilenet_v3_large(weights = MobileNet_V3_Large_Weights.DEFAULT)
         self.model = self.mobile_net.features
+        
+        for param in self.model.parameters():
+            param.requires_grad = False
     def forward(self, x):
         return self.model(x)
 
