@@ -134,3 +134,8 @@ test.py
 
 data/
 weights/
+
+detect
+train
+train.ipynb
+datasets/augmented_data

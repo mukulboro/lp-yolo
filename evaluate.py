@@ -11,19 +11,7 @@ from PIL import Image, ImageDraw
 
 from utils import load_yaml, metrics, draw_detection
 from datasets import YoloDataset
-from datasets.voc_colors import COLORS
 from models import create_model
-
-
-parser = argparse.ArgumentParser(description='YOLO')
-parser.add_argument("--type", "-t", default="ms", help="model type", type=str)
-parser.add_argument("--cfg", "-c", default="config/model.yaml", help="model config file", type=str)
-parser.add_argument("--weights", "-w", default="yolo_ms.pt", help="model weights file", type=str)
-parser.add_argument("--dataset", "-d", default="config/dataset.yaml", help="dataset config file", type=str)
-parser.add_argument("--output", "-o", default="output", help="output dir", type=str)
-parser.add_argument('--tboard', action='store_true', default=False, help='use tensorboard')
-parser.add_argument("--cuda", "-cu", action='store_true', default=True, help='use cuda')
-args = parser.parse_args()
 
 torch.manual_seed(0)
 
@@ -42,21 +30,16 @@ def evaluate(model, val_loader, S, B, num_classes):
 
     
 if __name__ == "__main__":
-    cfg = load_yaml(args.cfg)
-    print('cfg:', cfg)
-    dataset = load_yaml(args.dataset)
-    print('dataset:', dataset)
+  
+    img_list_path = "datasets/augmented_data"
+    class_names = ["emb", "pro", "reg"]
+    S, B, num_classes, input_size = 7, 2, 3, 483
 
-    img_list_path = dataset['images_eval']
-    class_names = dataset['class_names']
-    S, B, num_classes, input_size = cfg['S'], cfg['B'], cfg['num_classes'], cfg['input_size']
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    device = 'cpu'
-    if args.cuda:
-        device = 'cuda:0'
 
     # build model
-    model = create_model(args.weights, S, B, num_classes, args.type, device)
+    model = create_model(S, B, num_classes,)
 
     # get data loader
     transform = transforms.Compose([
@@ -64,6 +47,7 @@ if __name__ == "__main__":
         transforms.ToTensor()
     ])
 
-    eval_dataset = YoloDataset(img_list_path, S, B, num_classes, transform, img_box_transforms=None, eval_mode=True)
+    eval_dataset = YoloDataset(img_list_path, S, B, num_classes, transform)
+    eval_dataset.eval()
     loader = DataLoader(eval_dataset)
     evaluate(model, loader, S, B, num_classes)

@@ -1,8 +1,10 @@
-# Simple Implementation of original Yolo v1 in PyTorch
+# Original YOLOv1 model modified for Number Plate Detection
+
+## This is a modification of [ms-yolo by mshenoda](https://github.com/mshenoda/ms-yolo)
 
 
 ---
-## required packages
+## Required packages
 numpy
 torch
 torchvision
@@ -10,47 +12,18 @@ pillow
 PyYaml
 opencv-python
 matplotlib
+tensorboard
 
 ## Install Requirements
-pip install -r requirements.txt
+pip3 install -r requirements.txt
 
 # Detection
-## Default 
-python .\detect.py
+python3 detect.py
 
-## Detect using tinier model
-python .\detect.py -w yolo_tinier.pt -t tinier --conf 0.1 --iou 0.3
-
-## Detect using tiny model
-python .\detect.py -w yolo_tinier.pt -t tinier --conf 0.1 --iou 0.3
-
-## Detect using ms model
-python .\detect.py -w yolo_tinier.pt -t tinier --conf 0.1 --iou 0.3
 
 # Training
-## Default 
-python .\train.py
-
-## Train using tinier model
-python .\train.py -t tinier
-
-## Train using tiny model
-python .\train.py -t tiny
-
-## Train using ms model
-python .\train.py -t ms
+python3 train.py
 
 
 # Evaluation
-
-## Default 
-python .\evaluate.py
-
-## Evaluate tinier model
-python .\evaluate.py -t tinier
-
-## Evaluate tiny model
-python .\evaluate.py -t tiny
-
-## Evaluate ms model
-python .\evaluate.py -t ms
+python3 evaluate.py
