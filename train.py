@@ -68,7 +68,7 @@ def validate(model, val_loader, device, S, B, valid_loss_list):
     return valid_loss_list
 
 if __name__ == "__main__":
-    EPOCHS = 1
+    EPOCHS = 100
     SAVE_FREQUENCY = 2
     LR = 1e-3
     BATCH_SIZE = 32
@@ -82,6 +82,7 @@ if __name__ == "__main__":
     os.makedirs(output_dir)
     
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"Device:{device}")
   
 
     # build model

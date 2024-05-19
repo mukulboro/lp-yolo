@@ -7,9 +7,9 @@ from utils import decode
 from models import create_model
 
 class Detector(object):
-    def __init__(self, input_size, S, B, num_classes):
+    def __init__(self, input_size, S, B, num_classes, weight_path=None):
         super().__init__()
-        self.model = create_model(S, B, num_classes)
+        self.model = create_model(S, B, num_classes, weight_path)
         self.transforms = transforms.Compose([
             transforms.Resize((input_size, input_size)),
             transforms.ToTensor()

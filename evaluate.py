@@ -39,7 +39,7 @@ if __name__ == "__main__":
 
 
     # build model
-    model = create_model(S, B, num_classes,)
+    model = create_model(S, B, num_classes, weight_path="train/final/epoch94.pt")
 
     # get data loader
     transform = transforms.Compose([

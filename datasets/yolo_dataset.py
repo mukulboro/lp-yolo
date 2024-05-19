@@ -37,7 +37,7 @@ class YoloDataset(Dataset):
         # read image
         img_filename = self.image_files[idx]
         img = Image.open(f"{self.image_path}/{img_filename}", mode='r')
-        img = self.transforms(img)
+        img = self.transform(img)
 
         # read each image's corresponding label (.json)
         labels = []
@@ -47,10 +47,10 @@ class YoloDataset(Dataset):
             for annot in data["annotations"]:
                 c = self.class_names.index(annot["label"])
                 w, h = annot["n_bb_w"], annot["n_bb_h"]
-                x1, y1 = annot["n_x_min"], annot["n_y_min"]
-                x2,y2 = annot["n_x_max"], annot["n_y_max"]
+                x1, y1 = annot["n_x_max"], annot["n_y_min"] # TOP LEFT
+                x2,y2 = annot["n_x_min"], annot["n_y_max"]  # BOTTOM RIGHT
                 converted_boxes = box_convert(
-                    boxes= torch.Tensor([x2,y2,x1,y1]),
+                    boxes= torch.Tensor([x1,y1,x2,y2]),
                     in_fmt="xyxy",
                     out_fmt="cxcywh"
                     )

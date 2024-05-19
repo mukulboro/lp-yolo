@@ -10,7 +10,8 @@ class Backbone(nn.Module):
     def __init__(self):
         super().__init__()
         self.mobile_net = mobilenet_v3_large(weights = MobileNet_V3_Large_Weights.DEFAULT)
-        self.model = self.mobile_net.features
+        self.model = self.mobile_net
+        self.model.classifier = self.model.classifier[:-1]
         
         for param in self.model.parameters():
             param.requires_grad = False
@@ -43,25 +44,20 @@ class YoloLP(nn.Module):
             nn.MaxPool2d(2, stride=1),
         )
 
-        # fully connected
+      
         self.fc_layers = nn.Sequential(
-            nn.Linear(2048, 1920),
+            nn.Linear(1280, 560),
             nn.SiLU(inplace=True),
             nn.Dropout(p=0.25),
-            nn.Linear(1920, self.S * self.S * (self.B * 5 + self.num_classes)),
+            nn.Linear(560, self.S * self.S * (self.B * 5 + self.num_classes)),
             nn.ReLU(inplace=True)
         )
 
     def forward(self, x):
         out = self.backbone(x)
-        out = self.conv_layers(out)
-        out = out.view(out.size()[0], -1)
+        # out = self.conv_layers(out)
+        # out = out.view(out.size()[0], -1)
         out = self.fc_layers(out)
         out = out.reshape(-1, self.S, self.S, self.B * 5 + self.num_classes)
         return out
-    
-
-trans = transforms.Compose([
-    transforms.ToTensor()
-])
 
